@@ -4,7 +4,6 @@
 #include <string.h>
 #include <time.h>
 
-
 /*
 -napravi datoteku
 -procitaj iz nje
@@ -36,7 +35,7 @@ float realativnoosobni(int bodovi_studenta, int relativni);			//gleda relativni 
 
 int main()
 {
-	int i = NULL;
+	int i = 0;
 	int count = 0;
 	//student* *p = NULL;
 	student* s = NULL;
@@ -125,15 +124,18 @@ student* dinamickiniz(int brojstudenata, char* ime_datoteke)
 
 int relativnibrojukupno(int count, student* niz)
 {
-	int ukupni_bodovi_studenata = 0;
+	int max=0;
 	int i = 0;
-
+	max=niz[i].bodovi;
 	for (i = 0; i < count; i++)
 	{
-		ukupni_bodovi_studenata += niz[i].bodovi;
+		if ((niz[i]).bodovi>max)
+		{
+			max=niz[i].bodovi;
+		}
 	}
 
-	return ukupni_bodovi_studenata;
+	return max;
 }
 
 float apsolutnibroj(int bodovi_studenta, int bodovi_ispita)
