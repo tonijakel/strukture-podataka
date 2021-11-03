@@ -1,0 +1,7 @@
+ana 4
+toni 8
+tanja 5
+sanja 7
+pero 6
+mate 10
+anja 9

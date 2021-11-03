@@ -314,4 +314,5 @@ int sort(position p)								//kopirano sa prezentacija sa predavanja
 		end = j;
 	}
 	return EXIT_SUCCESS;
-}
+}																		
+gi
