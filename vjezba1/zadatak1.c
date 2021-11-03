@@ -95,7 +95,7 @@ student* dinamickiniz(int brojstudenata, char* ime_datoteke)
 {
 	int i = 0;
 	FILE* datoteka = NULL;
-	student* niz_studenata = NULL;		//zasto nmg stavit student niz nego mora bit student pokazivac na niz
+	student* niz_studenata = NULL;		
 
 	niz_studenata = (student*)malloc(brojstudenata * sizeof(student));
 
