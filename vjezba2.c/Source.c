@@ -235,24 +235,26 @@ int unesi_poslje(osoba* head, position trazeni)
 
 int lista_u_datoteku(osoba *head)
 {
-	char ime[LINE] = {0};
+	char ime[LINE] = "Upis";
 	FILE* datoteka = NULL;
 	char* ulazno[LINE] = { 0 };
+	osoba* temp = head->next;
 
-	printf("\nUnesite ime datoteke: ");
-	scanf(" %s",ime);
+	/*printf("\nUnesite ime datoteke: ");
+	scanf(" %s",ime);*/
 
 	datoteka = fopen(ime,"w");
 
 	if (!datoteka)
 	{
 		perror("Ne mogu otvorit file za upis");
+		return -1;
 	}
 
-	while (head->next != NULL)
+	while (temp != NULL)
 	{
-		fprintf(datoteka," %s %d",head->next->ime,head->next->godina);
-		head->next = head->next->next;
+		fprintf(datoteka," %s %d\n",temp->ime,temp->godina);
+		temp = temp->next;
 	}
 
 	fclose(datoteka);
@@ -276,7 +278,7 @@ int citaj_listu_iz_datoteke(char *filename)
 		fgets(buffer,LINE,datoteka);
 		if (sscanf(datoteka, " %s %d",ime,&godine) == 2)
 		{
-			fprintf(datoteka," %s %d");
+			printf(" %s %d\n",ime,godine);
 		}
 	}
 
@@ -315,4 +317,3 @@ int sort(position p)								//kopirano sa prezentacija sa predavanja
 	}
 	return EXIT_SUCCESS;
 }																		
-gi
