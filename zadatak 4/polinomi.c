@@ -178,7 +178,7 @@ int unesi_sortirano(polinom* head, position stvoreni)
 			zbroji_clanove(&head, hodajuci, stvoreni);
 		}
 
-		hodajuci = hodajuci->next;								
+		hodajuci = hodajuci->next;								//idi mi dok ne dodes na adresu kojem je main na nulli a ne da on pokazuje na nullu
 	}
 	free(hodajuci);
 
