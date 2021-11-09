@@ -40,15 +40,20 @@ int main()
 	polinom mno_head = { 0,0,NULL };
 	char* ime_datoteke = "polinom.txt";
 
-	printf("U datoteci ima %d linija, pa ce mo imati isto toliko polinoma\n",provjera_datoteke(ime_datoteke));
+
+	printf("U datoteci ima %d linija, pa ce mo imati isto toliko polinoma\n", provjera_datoteke(ime_datoteke));
 	citaj_iz_datoteke(&head1, &head2, ime_datoteke);
+	printf("\nPrvi polinom je oblika: \n");
 	ispis(&head1);
+	printf("\nDrugi polinom je oblika: \n");
 	ispis(&head2);
 	zbrajanje_polinoma(&head1, &head2, &sum_head);
+	printf("\nKada bi se ta da polinoma zbrojili dobili bi: \n");
 	ispis(&sum_head);
+	printf("\nKada bi se ta da polinoma pomnozili dobili bi: \n");
 	mnozenje_polinoma(&head1, &head2, &mno_head);
 	ispis(&mno_head);
-	 
+
 	return 0;
 }
 
@@ -57,12 +62,21 @@ int ispis(polinom* head)
 	polinom* temp = NULL;
 	temp = head->next;
 
+	puts("");
+
 	while (temp != NULL)
 	{
-		printf("%dx^%d + ",temp->broj,temp->eksponent);
+		printf("%dx^%d", temp->broj, temp->eksponent);
 		temp = temp->next;
+		if (temp != NULL)
+		{
+			printf(" + ");
+		}
+		else if (temp == NULL)
+		{
+			printf(" = 0\n");
+		}
 	}
-	puts("");
 	return EXIT_SUCCESS;
 }
 
@@ -71,7 +85,7 @@ int provjera_datoteke(char* filename)
 	FILE* datoteka = NULL;
 	char buffer[LINE] = { 0 };
 	int count = 0;
-	
+
 
 	datoteka = fopen(filename, "r");
 
@@ -92,13 +106,13 @@ int provjera_datoteke(char* filename)
 	return count;
 }
 
-int citaj_iz_datoteke(polinom* head1, polinom* head2,char*filename)
+int citaj_iz_datoteke(polinom* head1, polinom* head2, char* filename)
 {
 	FILE* datoteka = NULL;
 	polinom* temp = NULL;
-	char buffer[LINE] = { 0 };	
-	int	temp_exponenet=0;
-	int temp_broj=0;
+	char buffer[LINE] = { 0 };
+	int	temp_exponenet = 0;
+	int temp_broj = 0;
 	int broj_linija = 1;
 	int n = 0;
 	char* p = NULL;
@@ -116,8 +130,8 @@ int citaj_iz_datoteke(polinom* head1, polinom* head2,char*filename)
 	{
 		fgets(buffer, LINE, datoteka);
 		p = buffer;
-		while(strlen(p)){
-			if (sscanf(p, " %d %d %n", &temp_broj, &temp_exponenet,&n) == 2)
+		while (strlen(p)) {
+			if (sscanf(p, " %d %d %n", &temp_broj, &temp_exponenet, &n) == 2)
 			{
 				if (broj_linija == 1)
 				{
@@ -147,7 +161,7 @@ int citaj_iz_datoteke(polinom* head1, polinom* head2,char*filename)
 
 polinom* stvori_novog(int broj, int exponent)
 {
-	polinom* temp=NULL;									//ovdje stvaram strukturu ali zasto nebi mogao stvorit samo polinom* pokazivac na tu trukturu npr polinom* p
+	polinom* temp = NULL;									//ovdje stvaram strukturu ali zasto nebi mogao stvorit samo polinom* pokazivac na tu trukturu npr polinom* p
 	temp = (polinom*)malloc(sizeof(polinom));			//prikaz memorije prilikom stvaranja novog clana?
 
 	temp->broj = broj;
@@ -201,7 +215,7 @@ int mnozenje_polinoma(polinom* prvi_head, polinom* drugi_head, polinom* rezultat
 	int exponent = 0;
 	polinom* temp1 = prvi_head;
 	polinom* temp2 = drugi_head;
-	while (temp1->next!=NULL)
+	while (temp1->next != NULL)
 	{
 		temp2 = drugi_head;
 		while (temp2->next != NULL)
@@ -212,7 +226,7 @@ int mnozenje_polinoma(polinom* prvi_head, polinom* drugi_head, polinom* rezultat
 
 			temp2 = temp2->next;
 		}
-		temp1= temp1->next;
+		temp1 = temp1->next;
 	}
 	return EXIT_SUCCESS;
 }
@@ -224,16 +238,16 @@ int zbrajanje_polinoma(polinom* prvi_head, polinom* drugi_head, polinom* rezulta
 	polinom* temp1 = prvi_head->next;
 	polinom* temp2 = drugi_head->next;
 
-	while(temp1!=NULL)
+	while (temp1 != NULL)
 	{
 		unesi_sortirano(rezultatni_head, stvori_novog(temp1->broj, temp1->eksponent));
-		temp1=temp1->next;
+		temp1 = temp1->next;
 	}
 
-	while(temp2!=NULL)
+	while (temp2 != NULL)
 	{
 		unesi_sortirano(rezultatni_head, stvori_novog(temp2->broj, temp2->eksponent));
-		temp2=temp2->next;
+		temp2 = temp2->next;
 	}
 
 	return EXIT_SUCCESS;
