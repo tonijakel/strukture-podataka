@@ -5,9 +5,9 @@
 /*
 funkcija za unos clanova
 funkcija za citanje cijelog filea u rb da pricta sve
-pop vadi mi prvog
+pop vadi mi prvog=ocitaj mi prvog ubiti samo jedna varijabla koja je jednaka head->next i druga koja je haed->next->next
 push dodaj mi prvog
-dodaj na pocetak
+dodaj na pocetak=push
 brisi sa pocetka
 */
 
