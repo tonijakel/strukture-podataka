@@ -1,0 +1,6 @@
+Zagreb		790017
+Zadar		75062
+Split		178102	
+Osijek		108048
+Rijeka		128624
+Dubrovnik	42615
