@@ -44,18 +44,29 @@ position_stablo new_in_tree(char* temp_ime);
 position_stablo insert_in_tree(position_stablo current, position_stablo novi);
 bool inorder(position_stablo hodajuci);
 bool print2D(position_stablo current, int space);
+position_stablo root_grad(position_stablo root);
 
 
 int main()
 {
 	char* file_countries = "drzave.txt";
-	
-	position_stablo root=NULL;				
+
+	position_stablo root = NULL;
 
 	if (provjera_datoteke(file_countries))
 	{
-		root=read_make_stablo(file_countries);
-		print2D(root,0);
+		root = read_make_stablo(file_countries);
+
+		if (root == NULL)
+		{
+			return 0;
+		}
+		else  //postoji mi nesto 
+			  //odi do svakog clana i stvori mu listu
+		{
+			root_grad(root);
+		}
+		print2D(root, 0);
 	}
 
 	puts("ad");
@@ -111,16 +122,16 @@ position_stablo read_make_stablo(char* filename)		//procitaj ime ako postoji stv
 			{
 				if (!broj_drzava)
 				{
-					root = new_in_tree(temp_ime);
+					root = insert_in_tree(root, new_in_tree(temp_ime));
 					//prvo otvorit datoteku pa onda stvaraj nove
 
-					root->grad = open_file(root->ime);											//OVDI SU SVI TVOJI PROBLEMI RIJESI OVO I RIJESIO SI SV E
+
+				/*	root->grad = open_file(root->ime); */											//OVDI SU SVI TVOJI PROBLEMI RIJESI OVO I RIJESIO SI SV E
 					broj_drzava++;
 				}
 				else
 				{
 					root = insert_in_tree(root, new_in_tree(temp_ime));
-					root->grad = open_file(root->ime);
 				}
 			}
 			privremeni_buffer += n;
@@ -133,7 +144,6 @@ position_stablo read_make_stablo(char* filename)		//procitaj ime ako postoji stv
 
 	/*
 	datoteka = fopen(filename, "r");
-
 	while (!feof(datoteka))
 	{
 		fgets(buffer, LINE, datoteka);
@@ -152,14 +162,13 @@ position_stablo read_make_stablo(char* filename)		//procitaj ime ako postoji stv
 			privremeni_buffer += n;
 		}
 	}
-
 	fclose(datoteka);*/
 
 	return root;
 }
 
 
-position_list new_in_list(char* temp_ime,int stanovnici)
+position_list new_in_list(char* temp_ime, int stanovnici)
 {
 	position_list new_element = NULL;
 
@@ -178,14 +187,14 @@ position_list insert_list(position_list head, position_list new_element)
 	int rezultat = 0;
 
 	temp = head;						//head je null uvik 
-					
+
 	if (!temp)
 	{
 		temp = new_element;
 		return temp;
 	}
 
-	while ((temp->next != NULL) && (temp->next->broj_stanovnika>new_element->broj_stanovnika))				//idi dok nisi dosao do kraja ili dok nisi nasao manji
+	while ((temp->next != NULL) && (temp->next->broj_stanovnika > new_element->broj_stanovnika))				//idi dok nisi dosao do kraja ili dok nisi nasao manji
 	{
 		temp = temp->next;
 	}
@@ -202,9 +211,7 @@ position_list insert_list(position_list head, position_list new_element)
 	position_list temp = NULL;
 	position_stablo hodajuci = NULL;
 	temp = head->next;
-
 	puts("");
-
 	while (temp)
 	{
 		printf("%s\n", temp->ime);
@@ -213,7 +220,6 @@ position_list insert_list(position_list head, position_list new_element)
 		puts("");
 		temp = temp->next;
 	}
-
 	return true;
 }*/
 
@@ -225,10 +231,11 @@ position_list open_file(char* filename)
 	char ime_tempa[LINE] = { 0 };
 	char ime_datoteke[LINE] = { 0 };
 	char buffer[LINE] = { 0 };
+	int n = 0;
 	char* privremeni_buffer = NULL;
 	char temp_ime[LINE] = { 0 };
 	int broj_stanovnika = 0;
-	int n = 0;
+
 
 
 	//temp = head->next;
@@ -320,4 +327,55 @@ bool print2D(position_stablo current, int space)
 	print2D(current->right, space);
 
 	return current;
+}
+
+position_stablo root_grad(position_stablo root)
+{
+
+	//pogledaj prvi ako ga ima dodaj mu listu ako ne izadi 
+	//odi livo 
+	//odi desno
+	//vratio root radi veze i guess?
+	char temp_ime[LINE] = { 0 };
+	FILE* datoteka = NULL;
+	position_list temp = NULL;
+	char buffer[LINE] = { 0 };
+	int n = 0;
+	char* privremeni_buffer = NULL;
+	int broj_stanovnika = 0;
+
+	if (root != NULL)
+	{
+		root_grad(root->left);
+
+		strcpy(temp_ime, root->ime);			//dodaj mi neku varijablu stalnogimena koja ce mi otvorit datoteku te drzave
+		strcat(temp_ime, ".txt");
+		datoteka = fopen(temp_ime, "r");
+
+		if (!datoteka)
+		{
+			perror("Datoteka nije uspjesno otvorena kod lista");
+			return EXIT_FAILURE;
+		}
+		else  //datoteka otvorena
+		{
+			while (!feof(datoteka))
+			{
+				fgets(buffer, LINE, datoteka);
+				privremeni_buffer = buffer;
+				while (strlen(privremeni_buffer))	//ako ima ista u retku idemooooooo
+				{
+					if (sscanf(privremeni_buffer, " %s %d %n", temp_ime, &broj_stanovnika, &n) == 2)			//neman vise ideja
+					{
+						root->grad = insert_list(root->grad, new_in_list(temp_ime, broj_stanovnika));
+					}
+					privremeni_buffer += n;
+				}
+				//temp->grad = privremeni;
+			}
+
+			fclose(datoteka);
+		}
+		root_grad(root->right);
+	}
 }
