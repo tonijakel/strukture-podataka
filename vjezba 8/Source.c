@@ -32,18 +32,22 @@ position insert(position current, position novi);
 int trazi_element(position current, int trazeni);
 position DeleteElement(position current, int element);		//ne razumijem niti radi
 position FindMin(position current);
+position findmax(position current);
+
 
 //ispisi 
 //nikoji ne radi ispravno
 position inorder(position current);
 position preorder(position current);
 position postorder(position current);
-position levelorder(position current);
 position print2D(position current, int space);
+position levelorder(position root);
+position trenutna_razina(position root, int level);
+int visina(position current);
 
 int main()
 {
-	position first = NULL;
+	//position first = NULL;
 	position root = NULL;
 	position temp = NULL;
 	int broj_elemenata = 0;
@@ -75,7 +79,7 @@ int main()
 				temp = make_element();
 				if (broj_elemenata == 0)
 				{
-					first = root = temp;
+					root = temp;
 					//first = root;
 					broj_elemenata++;
 				}
@@ -91,7 +95,7 @@ int main()
 				printf("Odabrali ste: Brisanje elementa\n");
 				printf("Koji element zelite obrisati: ");
 				scanf("%d", &brisanje);
-				DeleteElement(first, brisanje);
+				root = DeleteElement(root, brisanje);
 				broj_elemenata--;
 				break;
 			}
@@ -132,13 +136,13 @@ int main()
 						}
 						case 4:
 						{
-							printf("Jos u razvijanju\n");
-							//lvlorder();
+							levelorder(root);
+							puts("");
 							break;
 						}
 						case 5:
 						{
-							print2D(first, 0);
+							print2D(root, 0);
 							puts("");
 							break;
 						}
@@ -252,11 +256,11 @@ position insert(position current, position novi)
 	{
 		return novi;
 	}
-	if ((current->broj) > (novi->broj))
+	if ((current->broj) < (novi->broj))
 	{
 		current->right = insert(current->right, novi);
 	}
-	else if ((current->broj) < (novi->broj))
+	else if ((current->broj) > (novi->broj))
 	{
 		current->left = insert(current->left, novi);
 	}
@@ -338,33 +342,20 @@ position postorder(position current)
 	return EXIT_SUCCESS;
 }
 
-/*position levelorder(position root)
-{
-	if (root == NULL)
-	{
-		return 0;
-	}
-
-	printf(" %d", inorder(root->left));
-	printf(" %d", root->broj);
-	printf(" %d", inorder(root->right));
-	return root;
-}*/
-
 position print2D(position current, int space)
 {
 	if (current == NULL)
 		return EXIT_SUCCESS;
 	space += COUNT;
 
-	print2D(current->left, space);
+	print2D(current->right, space);
 
 	printf("\n");
 	for (int i = COUNT; i < space; i++)
 		printf(" ");
 	printf("%d\n", current->broj);
 
-	print2D(current->right, space);
+	print2D(current->left, space);
 
 	return current;
 }
@@ -386,23 +377,27 @@ position DeleteElement(position current, int element)		//sa prezentacije
 	{
 		current->right = DeleteElement(current->right, element);
 	}
-	else if (current->left != NULL && current->right != NULL)
+	else
 	{
-		temp = FindMin(current->right);
-		current->broj = temp->broj;
-		current->right = DeleteElement(current->right, current->broj);
-	}
-	else {
-		temp = current;
-		if (current->left == NULL)
+		if (current->right == NULL && current->left == NULL)
 		{
-			current = current->right;
+			free(current);
+			return NULL;
 		}
-		else
+		else if (current->left != NULL)
 		{
-			current = current->left;
+			position result = findmax(current->left);				//napoisi kasniuje
+			current->broj = result->broj;
+			current->left = DeleteElement(current->left, result->broj);
+			return current;
 		}
-		free(temp);
+		else	//if (current->right!=NULL)  
+		{
+			position result = FindMin(current->right);				//napoisi kasniuje
+			current->broj = result->broj;
+			current->right = DeleteElement(current->right, result->broj);
+			return current;
+		}
 	}
 	return current;
 }
@@ -420,5 +415,58 @@ position FindMin(position current)		//sa prezentacije takoder
 	else
 	{
 		return FindMin(current->left);
+	}
+}
+
+position findmax(position current)
+{
+	if (current == NULL)
+	{
+		return NULL;
+	}
+	while (current->right != NULL)
+	{
+		current = current->right;
+	}
+	return current;
+}
+
+position levelorder(position current)
+{
+	int h = visina(current);
+	int i;
+	for (i = 1; i <= h; i++)
+		trenutna_razina(current, i);
+	return EXIT_SUCCESS;
+}
+
+
+position trenutna_razina(position current, int level)
+{
+	if (current == NULL)
+		return EXIT_SUCCESS;
+	if (level == 1)
+		printf("%d ", current->broj);
+	else if (level > 1) {
+		trenutna_razina(current->left, level - 1);
+		trenutna_razina(current->right, level - 1);
+	}
+	return EXIT_SUCCESS;
+}
+
+int visina(position current)
+{
+	if (node == NULL)
+		return 0;
+	else {
+		/* compute the visina of each subtree */
+		int lvisina = visina(current->left);
+		int rvisina = visina(current->right);
+
+		/* use the larger one */
+		if (lvisina > rvisina)
+			return (lvisina + 1);
+		else
+			return (rvisina + 1);
 	}
 }
