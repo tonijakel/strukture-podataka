@@ -16,18 +16,21 @@ typedef struct _element
 	position child;
 }element;
 
+struct _element_stoga;
+typedef struct _element_stoga* position_stog;
+
 typedef struct _element_stoga
 {
-	position p;
-	position next;
+	position podatak_stablo;
+	position_stog next;
 }element_stoga;
 
 //stog
-int push(element_stoga* head, element_stoga* stvoreni, position ulazni);
-int pop(element_stoga* head);
-element_stoga* stvori_novog_stog();
-int printaj(element_stoga* head);
-element_stoga* trazi_element(element_stoga*head);
+int push(position_stog head, position_stog stvoreni, position ulazni);
+position pop(position_stog head);
+position_stog stvori_novog_stog();
+int printaj(position_stog head);
+position_stog trazi_element(position_stog head);
 
 //stablo
 position stvori_novog();
@@ -35,37 +38,50 @@ position insert(position current, position ne);
 
 //ispisi odabira
 int meni();
+int odabir();
 
 int main()
 {
 	char naredba[LINE] = { 0 };
-	element majka = { 'C',NULL,NULL };
-	position ne=NULL;
-	position parent=NULL;
-	element_stoga* roditelj = NULL;
-	element_stoga* temp = NULL;
+	element majka = { "C:",NULL,NULL };
+	position ne = NULL;
+	position parent = &majka;
+	position_stog roditelj = NULL;
+	position_stog temp = NULL;
 	element_stoga head = { NULL,NULL };
 	//majka = (position)malloc(sizeof(element));
 
 	meni();
+	odabir();
+	scanf(" %s", naredba);
 
 	do
 	{
-		if (strcmp(naredba, "md") == 0)
+		if (strcmp(naredba, "meni") == 0)
 		{
-			if (majka.child == NULL)
-			{
-				*parent = majka;
-			}
+			meni();
+			odabir();
+			scanf(" %s", naredba);
+		}
+		else if (strcmp(naredba, "md") == 0)
+		{
 			//temp = insert(parent->child, stvori_novog());
 			parent->child = insert(parent->child, stvori_novog());
 			//push(&head, stvori_novog_stog(),temp);
+			odabir();
+			scanf(" %s", naredba);
 		}
-		if (strcmp(naredba, "cd..") == 0)
+		else if (strcmp(naredba, "cd..") == 0)
 		{
-			pop(&head);
+			position result = pop(&head);
+			if (result != NULL)
+			{
+				parent = result;
+			}
+			odabir();
+			scanf(" %s", naredba);
 		}
-		if (strcmp(naredba, "cd_dir") == 0)
+		else if (strcmp(naredba, "cd_dir") == 0)
 		{
 			temp = trazi_element(&head);
 			if (temp == EXIT_SUCCESS)
@@ -76,10 +92,14 @@ int main()
 			{
 				roditelj = trazi_element(&head);
 			}
+			odabir();
+			scanf(" %s", naredba);
 		}
-		if (strcmp(naredba, "dir") == 0)
+		else if (strcmp(naredba, "dir") == 0)
 		{
 			printaj(&head);
+			odabir();
+			scanf(" %s", naredba);
 		}
 		/*
 		switch (*naredba)
@@ -119,13 +139,13 @@ int main()
 
 int meni()
 {
-	printf("\nZa sada su realizirane naredbe\n");
-	printf("0-meni");
-	printf("1-md\n");
-	printf("2-cd dir\n");
-	printf("3-cd..\n");
-	printf("4-dir\n");
-	printf("5-izlaz\n");
+	printf("\nZa sada su realizirane naredbe\n\n");
+	printf("meni\n");
+	printf("md\n");
+	printf("cd dir\n");
+	printf("cd..\n");
+	printf("dir\n");
+	printf("izlaz\n");
 	return EXIT_SUCCESS;
 }
 
@@ -160,85 +180,81 @@ position insert(position current, position ne)
 	return current;
 }
 
-element_stoga* stvori_novog_stog()
+position_stog stvori_novog_stog()
 {
-	element_stoga* novi = NULL;
-	novi = (element_stoga*)malloc(sizeof(element_stoga));
-	novi->p = NULL;
+	position_stog novi = NULL;
+	novi = (position_stog)malloc(sizeof(element_stoga));
+	novi->podatak_stablo = NULL;
 	novi->next = NULL;
 	return novi;
 }
 
-int push(element_stoga* head, element_stoga* stvoreni,position ulazni)
+int push(position_stog head, position_stog stvoreni, position ulazni)
 {
 	stvoreni->next = head->next;
-	stvoreni->p = ulazni;
+	stvoreni->podatak_stablo = ulazni;
 	head->next = stvoreni;				//zasto ako su jedan i drugi deklarirani kao element_stoga*
 
 	return EXIT_SUCCESS;
 }
 
-int pop(element_stoga* head)
+position pop(position_stog head)
 {
-	element_stoga* temp1 = NULL;
-	element_stoga* temp2 = NULL;
-	temp1 = head;
-	temp2 = head->next;
+	position_stog temp = NULL;
+	position result = NULL;
 
-	if (temp1 == NULL)
-	{
-		printf("\nNe postoji bas nista unutra nema što brisati\n");
-		return EXIT_SUCCESS;
-	}
+	temp = head->next;
 
-	if (temp2 == NULL)
+	if (temp != NULL)
 	{
-		printf("\nUnutar pocetnog direktorija ste i sve je obrisano\n");
+		head->next = temp->next;
+		result = temp->podatak_stablo;
+		free(temp);
 	}
-	else
-	{
-		temp1->next = temp2->next;
-		free(temp2);
-	}
-	return EXIT_SUCCESS;
+	return result;
 }
 
-int printaj(element_stoga* head)
+int printaj(position_stog head)
 {
-	element_stoga* temp = NULL;
+	position_stog temp = NULL;
 	//element_stoga* temp2 = NULL;
 	temp = head->next;
 	//temp2 = head->next;
 
 	if (!temp)
 	{
-		pritnf("\nNema elemenata!!\n");
+		perror("\nNema elemenata!!\n");
 	}
 
-	while (temp!=NULL)
+	while (temp != NULL)
 	{
-		printf("/%s",temp->p->ime);
+		printf("/%s", temp->podatak_stablo->ime);
 		temp = temp->next;
 	}
 
 	return EXIT_SUCCESS;
 }
 
-element_stoga* trazi_element(element_stoga* head)
+position_stog trazi_element(position_stog head)
 {
-	element_stoga* temp = NULL;
+	position_stog temp = NULL;
 	char ime[LINE] = { 0 };
 	printf("\nU koji direktorij idemo: ");
 	scanf(" %s", ime);
 	temp = head->next;
-	
+
 	if (!temp)
 		return EXIT_SUCCESS;
 
-	while (temp!=NULL)
+	while (temp != NULL)
 	{
-		if (strcmp(temp->p->ime, ime))
+		if (strcmp(temp->podatak_stablo->ime, ime))
 			return temp;
 	}
 	return EXIT_SUCCESS;
+}
+
+int odabir()
+{
+	puts("\nVas odabir je:");
 }
