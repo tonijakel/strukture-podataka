@@ -1,0 +1,6 @@
+Tokio		8489653
+Hiroshima	1154391
+Osaka		2628811
+Saitama		1880863
+Yokohama	3579628
+Kyoto		1474811

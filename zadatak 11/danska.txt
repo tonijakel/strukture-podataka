@@ -1,0 +1,6 @@
+Aalborg		193529
+Kopenhagen	501158
+Vejle		103027
+Odense		186595
+Silkeborg	85376
+Kolding		86468
