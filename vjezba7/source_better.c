@@ -15,10 +15,24 @@ typedef struct _directory{
     int subdir_size;
 }Directory;
 
+typedef struct _pathNode{
+    Directory* dir;
+    struct _pathNode* next;
+}PathNode;
+
+typedef PathNode* Path;
+
 int create_new_dir(Directory* parent, char name[NAME_MAX]);
 int find_and_delete_dir(Directory* parent, char to_delete[NAME_MAX]);
+void delete_dir(Directory* to_delete_ptr);
+Directory* cd(Directory* current_directory, Path path_root);
+void ls(Directory* current_directory);
+void pwd(Path path_root);
+void print_options();
 
 int main(){
+    char user_input[LINE_MAX] = {0};
+
     Directory root = {"root", NULL, 0, 0};
     root.subdirectories = malloc(sizeof(Directory*));
     if(root.subdirectories == NULL){
@@ -28,6 +42,43 @@ int main(){
     root.subdir_count = 1;
     root.subdir_size = 1;
     root.subdirectories[0] = &root; // every directory has its parent at index 0, root is its own parent
+
+    Directory* current_directory = &root;
+
+    Path path_root = malloc(sizeof(PathNode));
+    path_root->dir = &root;
+    path_root->next = NULL;
+
+    print_options();
+
+    while(1){
+        // compare user input to known commands and execute
+        // if adding functionality make sure to add a description to print_options()
+
+        printf("%s: ", current_directory->name);
+        scanf(" %s", &user_input);
+        if(strcmp(user_input, "help") == 0) print_options();
+        else if(strcmp(user_input, "mkdir") == 0) {
+            scanf(" %s", &user_input);
+            if(create_new_dir(current_directory, user_input) != 0) break;
+        }
+        else if(strcmp(user_input, "rm") == 0) {
+            scanf(" %s", &user_input);
+            if(find_and_delete_dir(current_directory, user_input) != 0) break;
+        }
+        else if(strcmp(user_input, "cd") == 0) current_directory = cd(current_directory, path_root);
+        else if(strcmp(user_input, "ls") == 0) ls(current_directory);
+        else if(strcmp(user_input, "pwd") == 0) pwd(path_root);
+        else if(strcmp(user_input, "exit") == 0) break;
+        else{
+            printf("Invalid input.");
+            print_options();
+        }
+    }
+
+    for(int i = 1; i < root.subdir_count; i++){
+        delete_dir(root.subdirectories[i]);
+    }
 
     return 0;
 }
@@ -119,12 +170,65 @@ int find_and_delete_dir(Directory* parent, char to_delete[NAME_MAX]){
     return 0;    
 }
 
-int delete_dir(Directory* to_delete_ptr){
+void delete_dir(Directory* to_delete_ptr){
     for(int i = 1; i < to_delete_ptr->subdir_count; i++){
         delete_dir(to_delete_ptr->subdirectories[i]);
     }
 
     free(to_delete_ptr);
+}
 
-    return 0;
+Directory* cd(Directory* current_directory, Path path_root){ // change current directory and path
+    char name[NAME_MAX];
+    scanf(" %s", &name);
+    if(strcmp(name, "..") == 0){
+        if(path_root->next != NULL){ // if we are in root, no need to change path
+            PathNode* temp = path_root;
+            while(temp->next->next) temp = temp->next; // walk through path nodes until temp->next is the last one
+            free(temp->next);
+            temp->next = NULL;
+        }
+        return current_directory->subdirectories[0];
+    }
+    for(int i = 1; i < current_directory->subdir_count; i++){
+        if(strcmp(name, current_directory->subdirectories[i]->name) == 0){
+            PathNode* temp = path_root;
+            while(temp->next) temp = temp->next;
+            temp->next = malloc(sizeof(PathNode)); // technically unsafe but if THIS fails you probably have bigger problems
+            temp->next->dir = current_directory->subdirectories[i];
+            temp->next->next = NULL;
+
+            return current_directory->subdirectories[i];
+        }
+    }
+    printf("Directory '%s' not found.\n", name);
+    return current_directory;
+}
+
+void ls(Directory* current_directory){
+    for(int i = 1; i < current_directory->subdir_count; i++){
+        printf("%s\n", current_directory->subdirectories[i]->name);
+    }
+}
+
+void pwd(Path path_root){
+    PathNode* current = path_root;
+    do{
+        printf("/%s", current->dir->name);
+        current = current->next;
+    }while(current != NULL);
+    printf("\n");
+}
+
+void print_options(){
+    printf(
+    "Available commands:\n"
+    "help - open this menu\n"
+    "mkdir - make a new directory in current directory (use: mkdir [name]\n"
+    "rm - remove a file (use: rm [filename])\n"
+    "cd - change directory (use: cd [relative path])\n"
+    "ls - list all files within current directory\n"
+    "pwd - print working directory path\n"
+    "exit - cleanup and exit\n"
+    );
 }
