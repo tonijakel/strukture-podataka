@@ -29,7 +29,7 @@ position make_sibling(position current, position new);
 position ulazak(position current);
 position izlazak(position current);
 position izbrisi(position current);
-
+position deleteNode(position root, char* key);
 
 
 int main() 
@@ -110,7 +110,7 @@ position izvrsavanje(position current, int odabrani)
         }
         case(4):
         {
-            current = current->parent;
+            current = current;
             break;
         }
         case(5):
@@ -229,8 +229,131 @@ position ulazak(position current)
     return current;
 }
 
+position izbrisi(position root)
+{
+    char buffer[LINE_MAX] = { 0 };
+    printf("Kojeg zelite izbrisati: ");
+    scanf(" %s",buffer);
+    deleteNode(root, buffer);
+    return root;
+}
+
+
+position deleteNode(position root, char* key)
+{
+    position temp = NULL;
+    position temp1 = NULL;
+    position temp2 = NULL;
+    position temp3 = NULL;
+    position pomicni = NULL;
+
+    if (root == NULL)
+        return root;
+
+    if (root != NULL)
+    {
+        if (root->child != NULL)
+        {
+            deleteNode(root->child, key);
+            if (strcmp(root->name, key) == 0)               //ako ima djece
+            {
+                temp = root->parent;
+                temp1 = root;
+                temp2 = root->child;
+                temp3 = root->sibling;
+                while (temp3 = NULL)
+                {
+                    temp3 = temp3->sibling;
+                }
+                temp3->sibling = temp1->sibling;
+            }
+            free(temp1);
+        }
+        if (root->sibling != NULL)
+        {
+            deleteNode(root->sibling, key);
+            if (strcmp(root->name, key) == 0)               //ako ima samo sibling
+            {
+                temp = root->parent;
+                temp1 = root;
+                temp->child = temp1->sibling;
+            }
+            free(temp1);
+        }
+    }
+    return root;   
+}
+
+
+/*
 position izbrisi(position current)
 {
+
+if (root->child != NULL)
+        root->child = deleteNode(root->child, key);
+    if (root->sibling != NULL)
+        root->sibling = deleteNode(root->sibling, key);
+
+    // node with only one child or no child
+    if (root->child== NULL) {
+        position temp = root->child;
+        free(root);
+        return temp;
+    }
+    else if (root->sibling == NULL) {
+        position temp = root->sibling;
+        free(root);
+        return temp;
+    }
+
+    // node with two children:
+    // Get the inorder successor
+    // (smallest in the right subtree)
+    position temp = root->child;
+
+    // Copy the inorder
+    // successor's content to this node
+    strcpy(root->name,temp->name);
+
+    // Delete the inorder successor
+    root->sibling= deleteNode(root->sibling, key);
+
+    return root;
+}
+
+
+
+
+    position temp = NULL;
+    position temp1 = NULL;
+    position temp2 = NULL;
+    position temp3 = NULL;
+    position pomicni = NULL;
+
+    if (root == NULL)
+        return root;
+
+    if (root != NULL)
+    {
+        if (strcmp(root->name, key) == 0)
+        {
+            temp = root->parent;
+            temp1 = root;
+            temp2 = root->child;
+            temp3 = root->sibling;
+        }
+        deleteNode(root->child, key);
+        deleteNode(root->sibling, key);
+    }
+    return root;
+
+
+    // base case
+    if (root == NULL)
+        return root;
+
+
+
     position temp = current->child;
     position temp1 = current;
     position temp2 = current;
@@ -269,5 +392,5 @@ position izbrisi(position current)
     free(temp1);
     return current;
 }
-
+*/
 //{}
