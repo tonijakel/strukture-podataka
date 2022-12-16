@@ -1,0 +1,273 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define LINE_MAX 1024
+
+struct _node;
+typedef struct _node* position;
+
+
+typedef struct _node{
+    char name[256];
+    int razina;
+    position parent;
+    position sibling;
+    position child;
+}node;
+
+
+//functions
+void meni();
+void ispis(position current);
+int odabir();
+position izvrsavanje(position root, int radnja);
+position make_new();
+position metni_ga(position root, position new);
+position make_child(position current, position new);
+position make_sibling(position current, position new);
+position ulazak(position current);
+position izlazak(position current);
+position izbrisi(position current);
+
+
+
+int main() 
+{
+    node root = { "root",1, &root ,NULL,NULL}; 
+    position current = &root;
+    int provjera=0;
+    meni();
+
+    do
+    {
+        provjera = odabir();
+        izvrsavanje(current,provjera);
+    } while (provjera!= 0);    
+    return 0;
+}
+
+void meni()
+{
+    printf("1 - Ispisi meni\n");
+    printf("2 - Stvori direktorij\n");
+    printf("3 - Udi u direktorij \n");
+    printf("4 - Izadi iz direktorija\n");
+    printf("5 - Izbrisi direktorij\n");
+    printf("6 - Ispisi sve direktorije\n");
+    printf("7 - Zavrsi\n");
+}
+
+int odabir()
+{
+    int odabrani=0;
+    static int pogreske = 0;
+    printf("\nOdaberite neku radnju: ");
+    scanf("%d", &odabrani);
+    if(odabrani>0 && odabrani<7)
+    {
+        pogreske = 0;
+        printf("\n");
+        return odabrani;
+    }
+    else if (odabrani==7)
+    {
+        odabrani = 0;
+        return odabrani;
+    }
+    else if(pogreske<2)
+    {
+        pogreske++;
+        odabrani = 0;
+        odabir();               //kod rekurzije samo odluci na drugom pozivu vratit 1 a ne 0
+    }
+    else 
+    {
+        odabrani = 0;                   
+        return odabrani;
+    }
+    printf("\n");
+}
+
+position izvrsavanje(position current, int odabrani)
+{
+    switch(odabrani)
+    {
+        case(1):
+        {
+            meni();
+            break;
+        }
+        case(2):
+        {
+            metni_ga(current,make_new());
+            break;
+        }
+        case(3):
+        {
+            current=ulazak(current);
+            break;
+        }
+        case(4):
+        {
+            current = current->parent;
+            break;
+        }
+        case(5):
+        {
+            izbrisi(current);
+            break;
+        }
+        case(6):
+        {
+            ispis(current);
+            break;
+        }
+    }    
+    return current;
+}
+
+position make_new()
+{
+    position new = NULL;
+    char buffer[LINE_MAX];
+    new = (position)malloc(sizeof(node));
+    if (new == NULL)
+        return NULL;
+    printf("Ime elementa: ");
+    scanf(" %s",buffer);                        
+    strcpy(new->name,buffer);
+    new->razina = 0;
+    new->parent = NULL;
+    new->sibling = NULL;
+    new->child = NULL;    
+    return new;
+}
+
+position metni_ga(position current, position new)
+{
+    int odabir = 0;
+
+    if (current->razina == 1)
+    {
+        odabir = 2;
+    }
+    else
+    {
+        printf("\nNovi element je sibling ili child od trenutnog elementa:\n1. za sibling\n2. za child\n");
+        printf("Vas odabir je: ");
+        scanf("%d", &odabir);
+        printf("\n");
+    }
+
+    if (odabir == 1)
+    {
+        make_sibling( current, new);
+    }
+    else if (odabir == 2)
+    {
+        make_child( current, new);
+    }
+    else
+        printf("\nZasto si takav :/\n");
+
+    return current;
+}
+
+position make_child(position current, position new)
+{
+    if (current->child == NULL)
+    {
+        current->child = new;
+        new->parent = current;
+        new->razina = current->razina + 1;
+    }
+    else
+        make_sibling(current->child, new);
+    return current;
+}
+
+position make_sibling(position current, position new)
+{
+    while(current->sibling!=NULL)
+    {
+        current = current->sibling;
+    }
+    current->sibling = new;
+    new->parent = current->parent;
+    new->razina = current->razina;
+}
+
+void ispis(position current)
+{
+    position temp = current->child;
+    while (temp != NULL)
+    {
+        printf("Na razini %d nalazi se %s\n",temp->razina,temp->name);
+        temp = temp->sibling;
+    }
+}
+
+position ulazak(position current)
+{
+    position temp = current->child;
+    char buffer[LINE_MAX] = { 0 };
+    ispis(current);
+    printf("\nU kojeg hocete uci: ");
+    scanf(" %s",buffer);
+    while ((temp!=NULL) && (strcmp(buffer,temp->name)))
+    {
+        temp = temp->sibling;
+    }
+    if (strcmp(buffer, temp->name)==0)
+    {
+        printf("Pripremi se ulazim :O\n");
+        return temp;
+    }
+    else
+        printf("Nema ga ba\n");
+    return current;
+}
+
+position izbrisi(position current)
+{
+    position temp = current->child;
+    position temp1 = current;
+    position temp2 = current;
+    char buffer[LINE_MAX] = { 0 };
+
+    if (temp == NULL)
+        return NULL;
+
+    ispis(current);
+    printf("\nKojeg brisemo: ");
+    scanf(" %s", buffer);
+
+    while (temp != NULL)  
+    {
+        if (strcmp(buffer, temp->name))
+        {
+            temp1 = temp->child;
+            temp2 = temp->sibling;
+            if (temp1->child != NULL)                           //jeli ima ista ispod
+            {
+                temp->child = temp1->child;
+                temp2 = temp1->child;
+                while (temp2->sibling != NULL)
+                {
+                    temp2 = temp2->sibling;                     //dodaj na kraj reda diteta
+                }
+                temp2->sibling = temp1->sibling;
+            }
+            else if (temp1->sibling != NULL)
+            {
+
+            }
+        }
+        temp = temp->sibling;
+    }
+    free(temp1);
+    return current;
+}
+
+//{}
